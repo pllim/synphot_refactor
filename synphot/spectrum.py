@@ -71,8 +71,8 @@ class BaseSpectrum(object):
 
     # For handling of units with models.
     _model_param_dict = {
-        'BlackBody1D': {'temperature': u.K},
-        'BlackBodyNorm1D': {'temperature': u.K},
+        'BlackBody1D': {'temperature': u.K, 'bolometric_flux': 'noconv'},
+        'BlackBodyNorm1D': {'temperature': u.K, 'bolometric_flux': 'noconv'},
         'Box1D': {'amplitude': 'flux', 'x_0': 'wave', 'width': 'wave'},
         'BrokenPowerLaw1D': {
             'amplitude': 'flux', 'x_break': 'wave',
@@ -86,8 +86,6 @@ class BaseSpectrum(object):
             'amplitude': 'flux', 'x_0': 'wave', 'x_cutoff': 'wave',
             'alpha': u.dimensionless_unscaled},
         'Gaussian1D': {'amplitude': 'flux', 'mean': 'wave', 'stddev': 'wave'},
-        'GaussianAbsorption1D': {
-            'amplitude': 'flux', 'mean': 'wave', 'stddev': 'wave'},
         'GaussianFlux1D': {'total_flux': 'flux', 'amplitude': 'flux',
                            'mean': 'wave', 'stddev': 'wave', 'fwhm': 'wave'},
         'LogParabola1D': {
@@ -113,7 +111,6 @@ class BaseSpectrum(object):
         'Empirical1D': 'points',
         'ExponentialCutoffPowerLaw1D': 'x_0',
         'Gaussian1D': 'mean',
-        'GaussianAbsorption1D': 'mean',
         'GaussianFlux1D': 'mean',
         'LogParabola1D': 'x_0',
         'Lorentz1D': 'x_0',
@@ -244,9 +241,9 @@ class BaseSpectrum(object):
     def _process_generic_param(pval, def_unit, equivalencies=[]):
         """Process generic model parameter."""
         if isinstance(pval, u.Quantity):
-            outval = pval.to(def_unit, equivalencies).value
+            outval = pval.to(def_unit, equivalencies)
         else:  # Assume already in desired unit
-            outval = pval
+            outval = pval * def_unit
         return outval
 
     def _process_wave_param(self, pval):
@@ -1000,9 +997,9 @@ class SourceSpectrum(BaseSourceSpectrum):
         if isinstance(pval, u.Quantity):
             self._validate_flux_unit(pval.unit)
             outval = units.convert_flux(self._redshift_model(wave), pval,
-                                        self._internal_flux_unit).value
+                                        self._internal_flux_unit)
         else:  # Assume already in internal unit
-            outval = pval
+            outval = pval * self._internal_flux_unit
         return outval
 
     @property

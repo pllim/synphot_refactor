@@ -53,11 +53,11 @@ reported) or contact STScI Help Desk via ``help[at]stsci.edu``.
 Installation and Setup
 ======================
 
-**synphot** works under both Python 2 and 3. It requires the following
-packages:
+**synphot** works under both Python 3 (Python 2 is no longer supported).
+It requires the following packages:
 
-* numpy (>= 1.9)
-* astropy (>= 1.3)
+* numpy (>= 1.10)
+* astropy (>= 3.0)
 * scipy (>= 0.14)
 * matplotlib (optional for plotting)
 
@@ -67,7 +67,7 @@ for a future release):
 
 * From standalone release::
 
-    pip install git+https://github.com/spacetelescope/synphot_refactor.git@0.1b4
+    pip install git+https://github.com/spacetelescope/synphot_refactor.git@0.2b1
 
 * From source (example shown is for the ``dev`` version)::
 
@@ -167,13 +167,11 @@ work, so they can be used directly. When in doubt, see if a model is in
     :include-source:
 
     from synphot import units, SourceSpectrum
-    from synphot.models import (BlackBodyNorm1D, GaussianAbsorption1D,
-                                GaussianFlux1D)
-    from synphot.spectrum import BaseUnitlessSpectrum
-    # Create a Gaussian absorption profile that absorps 80% of the flux at
-    # 4000 Angstrom with a sigma of 20 Angstrom
-    g_abs = BaseUnitlessSpectrum(GaussianAbsorption1D, amplitude=0.8,
-                                 mean=4000, stddev=20)
+    from synphot.models import BlackBodyNorm1D, GaussianFlux1D
+    # Create a Gaussian absorption line with a total flux of 0.08 PHOTLAM
+    # centered at 4000 Angstrom with a sigma of 20 Angstrom
+    g_abs = SourceSpectrum(GaussianFlux1D, total_flux=0.08*units.PHOTLAM,
+                           mean=4000, stddev=20)
     # Create a Gaussian emission line with a total flux of 0.05 PHOTLAM
     # centered at 3000 Angstrom with FWHM of 100 Angstrom
     g_em = SourceSpectrum(GaussianFlux1D, total_flux=0.05*units.PHOTLAM,
@@ -183,7 +181,7 @@ work, so they can be used directly. When in doubt, see if a model is in
     # Combine the above components to create a source spectrum that is twice
     # the original blackbody flux with the Gaussian emission and absorption
     # lines
-    sp = g_abs * (g_em + 2 * bb)
+    sp = g_em + 2 * bb - g_abs
     # Plot the spectrum, zooming in on the line features
     sp.plot(left=1, right=7000)
 
@@ -191,7 +189,7 @@ Sample the spectrum at 0.3 micron::
 
     >>> from astropy import units as u
     >>> sp(0.3 * u.micron)
-    <Quantity 0.001268063356632316 PHOTLAM>
+    <Quantity 0.0012685024467586276 PHOTLAM>
 
 Models that built the spectrum::
 
@@ -201,19 +199,19 @@ Models that built the spectrum::
     Inputs: ('x',)
     Outputs: ('y',)
     Model set size: 1
-    Expression: ([0] + ([1] | [2])) * [3]
+    Expression: [0] + ([1] | [2]) - [3]
     Components:
-        [0]: <GaussianFlux1D(amplitude=0.0004697186393498257, mean=3000.0, ...>
+        [0]: <GaussianFlux1D(amplitude=0.0004697186393498257, ...)>
 
         [1]: <BlackBodyNorm1D(temperature=6000.0)>
 
         [2]: <Scale(factor=2.0)>
 
-        [3]: <GaussianAbsorption1D(amplitude=0.8, mean=4000.0, stddev=20.0)>
+        [3]: <GaussianFlux1D(amplitude=0.001595769121605731, ...)>
     Parameters:
-          amplitude_0    mean_0    stddev_0   ... amplitude_3 mean_3 stddev_3
-        ---------------- ------ ------------- ... ----------- ------ --------
-        0.00046971863935 3000.0 42.4660900144 ...         0.8 4000.0     20.0
+          amplitude_0    mean_0    stddev_0   ... mean_3 stddev_3
+        ---------------- ------ ------------- ... ------ --------
+        0.00046971863935 3000.0 42.4660900144 ... 4000.0     20.0
 
 Redshift the source spectrum by :math:`z = 0.2`::
 
@@ -231,7 +229,7 @@ integrate it::
 
     >>> sp_rn = sp.normalize(1 * u.Jy, band=bp)
     >>> sp_rn.integrate()
-    <Quantity 12900.947986966807 PHOTLAM>
+    <Quantity 12933.235215181965 PHOTLAM>
 
 Create an observation by passing the redshifted and normalized source spectrum
 through the box bandpass::
@@ -246,7 +244,7 @@ Calculate the count rate of the observation above for an 2-meter telescope:
     >>> area
     <Quantity 3.141592653589793 m2>
     >>> obs.countrate(area=area)
-    <Quantity 24219652.902789623 ct / s>
+    <Quantity 24219651.302505273 ct / s>
 
 
 .. _synphot_using:

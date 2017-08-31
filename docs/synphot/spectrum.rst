@@ -340,10 +340,8 @@ The example below creates and plots a flat source with the amplitude of
 Gaussian Absorption
 -------------------
 
-There are two ways to create a Gaussian absorption feature;
-You can choose whichever method that better suits your needs.
-One is to first create :ref:`synphot-gaussian` and then subtract it from
-a continuum (e.g., :ref:`synphot-flat-spec`):
+To create a Gaussian absorption feature, first create :ref:`synphot-gaussian`
+and then subtract it from a continuum (e.g., :ref:`synphot-flat-spec`):
 
 .. plot::
     :include-source:
@@ -353,22 +351,6 @@ a continuum (e.g., :ref:`synphot-flat-spec`):
     em = SourceSpectrum(GaussianFlux1D, mean=6000, fwhm=10, total_flux=1)
     bg = SourceSpectrum(ConstFlux1D, amplitude=2)
     sp = bg - em
-    sp.plot()
-
-The other way is to create a unitless absorption profile and then multiply it
-to a continuum (e.g., :ref:`synphot-flat-spec`):
-
-.. plot::
-    :include-source:
-
-    from astropy.stats.funcs import gaussian_fwhm_to_sigma
-    from synphot import SourceSpectrum, BaseUnitlessSpectrum
-    from synphot.models import GaussianAbsorption1D, ConstFlux1D
-    sig = 10 * gaussian_fwhm_to_sigma
-    ab = BaseUnitlessSpectrum(GaussianAbsorption1D, mean=6000, stddev=sig,
-                              amplitude=0.047)
-    bg = SourceSpectrum(ConstFlux1D, amplitude=2)
-    sp = bg * ab
     sp.plot()
 
 

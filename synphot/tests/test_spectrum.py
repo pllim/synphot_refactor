@@ -28,8 +28,7 @@ from .test_units import _area, _wave, _flux_jy, _flux_photlam, _flux_vegamag
 from .. import exceptions, units
 from ..models import (
     BlackBodyNorm1D, Box1D, ConstFlux1D, Empirical1D, Gaussian1D,
-    GaussianAbsorption1D, GaussianFlux1D, Lorentz1D, MexicanHat1D,
-    PowerLawFlux1D, get_waveset)
+    GaussianFlux1D, Lorentz1D, MexicanHat1D, PowerLawFlux1D, get_waveset)
 from ..observation import Observation
 from ..spectrum import SourceSpectrum, SpectralElement
 
@@ -456,13 +455,6 @@ class TestBuildModels(object):
         y = sp([5000, 6000, 10000])
         np.testing.assert_allclose(
             y.value, [1.25770198, 0.54881164, 0.04767718])
-
-    def test_GaussianAbsorption1D(self):
-        """This should be unitless, not a source spectrum."""
-        bp = SpectralElement(
-            GaussianAbsorption1D, amplitude=0.8, mean=5500, stddev=50)
-        y = bp([5300, 5500, 5700])
-        np.testing.assert_allclose(y.value, [0.99973163, 0.2, 0.99973163])
 
     def test_LogParabola1D(self):
         sp = SourceSpectrum(
