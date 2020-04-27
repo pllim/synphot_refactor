@@ -317,6 +317,8 @@ Also imports this C-extension to local namespace:
 
 .. automodapi:: synphot.exceptions
 
+.. automodapi:: synphot.filter_parameterization
+
 .. automodapi:: synphot.models
 
 .. automodapi:: synphot.observation
