@@ -279,6 +279,7 @@ Using **synphot**
    synphot/observation
    synphot/formulae
    synphot/units
+   synphot/filter_par
    synphot/tutorials
 
 .. _synphot_history:
